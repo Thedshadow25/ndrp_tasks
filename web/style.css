@@ -1,0 +1,203 @@
+/* ===================================================
+   ndrp_tasks — Custom Task Selection Menu
+   Lation UI inspired dark theme
+   =================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: transparent;
+    overflow: hidden;
+    user-select: none;
+    color: #e4e4e7;
+}
+
+/* ---- Container ---- */
+#task-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.menu-container {
+    width: 420px;
+    max-height: 520px;
+    background: rgba(15, 15, 15, 0.92);
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ---- Header ---- */
+.menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px 20px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-icon {
+    font-size: 14px;
+    color: #3B82F6;
+}
+
+.header-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: #f4f4f5;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #71717a;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    color: #e4e4e7;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.header-accent {
+    height: 1px;
+    background: linear-gradient(90deg, #3B82F6 0%, rgba(59, 130, 246, 0.1) 100%);
+    margin: 0 20px;
+}
+
+/* ---- Task List ---- */
+.task-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 12px;
+}
+
+.task-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.task-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+/* ---- Task Card ---- */
+.task-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #1a1a1a;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    margin-bottom: 4px;
+}
+
+.task-card:last-child {
+    margin-bottom: 0;
+}
+
+.task-card:hover {
+    background: #222;
+    border-color: #333;
+    transform: translateX(2px);
+}
+
+.task-card:active {
+    transform: translateX(2px) scale(0.995);
+}
+
+.task-icon-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 15px;
+}
+
+.task-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f4f4f5;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.task-desc {
+    font-size: 11.5px;
+    color: #71717a;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.task-reward {
+    font-size: 13px;
+    font-weight: 700;
+    color: #22C55E;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+}
+
+/* ---- Footer ---- */
+.menu-footer {
+    padding: 10px 20px 14px 20px;
+    text-align: center;
+    border-top: 1px solid #1f1f1f;
+}
+
+.menu-footer span {
+    font-size: 11px;
+    color: #52525b;
+    letter-spacing: 0.3px;
+}

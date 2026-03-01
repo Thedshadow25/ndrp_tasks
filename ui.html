@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: transparent;
+            overflow: hidden;
+            color: #e4e4e7;
+        }
+
+        #app {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #app.active {
+            display: flex;
+        }
+
+        .panel {
+            width: 520px;
+            background: rgba(24, 24, 27, 0.88);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(63, 63, 70, 0.4);
+        }
+
+        /* --- Header --- */
+        .header {
+            background: #27272a;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #3f3f46;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon-wrap {
+            width: 36px;
+            height: 36px;
+            background: rgba(59, 130, 246, 0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-icon-wrap i {
+            font-size: 15px;
+            color: #3B82F6;
+        }
+
+        .header-text h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fafafa;
+        }
+
+        .header-text span {
+            font-size: 11.5px;
+            color: #a1a1aa;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+            color: #a1a1aa;
+            cursor: pointer;
+            font-size: 13px;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .close-btn:hover {
+            color: #fafafa;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- Stats bar --- */
+        .stats-bar {
+            background: rgba(39, 39, 42, 0.7);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid rgba(63, 63, 70, 0.3);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-item i {
+            font-size: 11px;
+            color: #71717a;
+        }
+
+        .stat-item .stat-label {
+            font-size: 10px;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-item .stat-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: #e4e4e7;
+        }
+
+        .xp-bar-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .xp-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: rgba(63, 63, 70, 0.5);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .xp-text {
+            font-size: 10px;
+            color: #71717a;
+            white-space: nowrap;
+        }
+
+        .level-badge {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93C5FD;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        /* --- Cooldown overlay --- */
+        .cooldown-overlay {
+            display: none;
+            padding: 40px 24px;
+            text-align: center;
+        }
+
+        .cooldown-overlay.active {
+            display: block;
+        }
+
+        .cooldown-overlay i {
+            font-size: 36px;
+            color: #F59E0B;
+            margin-bottom: 16px;
+        }
+
+        .cooldown-overlay h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fafafa;
+            margin-bottom: 6px;
+        }
+
+        .cooldown-overlay .cooldown-time {
+            font-size: 28px;
+            font-weight: 700;
+            color: #F59E0B;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .cooldown-overlay p {
+            font-size: 12px;
+            color: #71717a;
+            margin-top: 8px;
+        }
+
+        /* --- Task list --- */
+        .task-list {
+            padding: 10px 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .task-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .task-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .task-list::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 4px;
+        }
+
+        .task-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            background: rgba(39, 39, 42, 0.6);
+            border: 1px solid rgba(63, 63, 70, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 6px;
+            transition: all 0.18s ease;
+            position: relative;
+        }
+
+        .task-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .task-card:hover {
+            background: rgba(39, 39, 42, 0.9);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .task-card.locked:hover {
+            transform: none;
+            border-color: rgba(63, 63, 70, 0.3);
+            box-shadow: none;
+            background: rgba(39, 39, 42, 0.6);
+        }
+
+        .task-card .lock-overlay {
+            display: none;
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .task-card.locked .lock-overlay {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .task-card.locked .task-right {
+            visibility: hidden;
+        }
+
+        .task-icon-wrap {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .task-icon-wrap i {
+            font-size: 16px;
+        }
+
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #fafafa;
+            margin-bottom: 3px;
+        }
+
+        .task-desc {
+            font-size: 11.5px;
+            color: #71717a;
+            line-height: 1.3;
+        }
+
+        .task-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .task-reward {
+            font-size: 14px;
+            font-weight: 700;
+            color: #22C55E;
+            letter-spacing: 0.3px;
+        }
+
+        .task-difficulty {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .task-difficulty.easy {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22C55E;
+        }
+
+        .task-difficulty.medium {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+        }
+
+        .task-difficulty.hard {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        .task-difficulty.expert {
+            background: rgba(139, 92, 246, 0.15);
+            color: #8B5CF6;
+        }
+
+        /* --- Footer --- */
+        .panel-footer {
+            padding: 12px 24px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(63, 63, 70, 0.3);
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-left i {
+            font-size: 11px;
+            color: #3B82F6;
+        }
+
+        .footer-left span {
+            font-size: 11px;
+            color: #52525b;
+        }
+
+        .footer-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-stat {
+            font-size: 10px;
+            color: #52525b;
+        }
+
+        .footer-stat b {
+            color: #a1a1aa;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="panel">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-icon-wrap">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="header-text">
+                        <h2>Uppdragscentral</h2>
+                        <span>Välj en kategori nedan</span>
+                    </div>
+                </div>
+                <button class="close-btn" id="closeBtn">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="stats-bar" id="statsBar" style="display:none;"></div>
+            <div class="cooldown-overlay" id="cooldownOverlay">
+                <i class="fas fa-clock"></i>
+                <h3>Cooldown aktiv</h3>
+                <div class="cooldown-time" id="cooldownTime">00:00</div>
+                <p>Vänta tills nästa uppdrag blir tillgängligt</p>
+            </div>
+            <div class="task-list" id="taskList"></div>
+            <div class="panel-footer">
+                <div class="footer-left">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Klicka på en kategori för slumpmässigt uppdrag</span>
+                </div>
+                <div class="footer-stats" id="footerStats"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var app = document.getElementById('app');
+        var taskList = document.getElementById('taskList');
+        var closeBtn = document.getElementById('closeBtn');
+        var statsBar = document.getElementById('statsBar');
+        var cooldownOverlay = document.getElementById('cooldownOverlay');
+        var footerStats = document.getElementById('footerStats');
+        var cooldownInterval = null;
+
+        var taskStyles = [
+            { bg: 'rgba(59,130,246,0.12)', fg: '#3B82F6' },
+            { bg: 'rgba(245,158,11,0.12)', fg: '#F59E0B' },
+            { bg: 'rgba(239,68,68,0.12)', fg: '#EF4444' },
+            { bg: 'rgba(139,92,246,0.12)', fg: '#8B5CF6' },
+            { bg: 'rgba(34,197,94,0.12)', fg: '#22C55E' },
+            { bg: 'rgba(6,182,212,0.12)', fg: '#06B6D4' }
+        ];
+
+        function postNUI(name, data) {
+            fetch('https://' + GetParentResourceName() + '/' + name, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data || {})
+            });
+        }
+
+        function formatTime(seconds) {
+            var m = Math.floor(seconds / 60);
+            var s = seconds % 60;
+            return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        function renderStats(stats) {
+            if (!stats) { statsBar.style.display = 'none'; return; }
+            statsBar.style.display = 'flex';
+
+            var xpProgress = 0;
+            if (stats.nextLevelXP > stats.currentLevelXP) {
+                xpProgress = ((stats.xp - stats.currentLevelXP) / (stats.nextLevelXP - stats.currentLevelXP)) * 100;
+            } else {
+                xpProgress = 100;
+            }
+            xpProgress = Math.max(0, Math.min(100, xpProgress));
+
+            statsBar.innerHTML =
+                '<div class="level-badge"><i class="fas fa-star" style="margin-right:4px;font-size:9px;"></i>Nivå ' + stats.level + '</div>' +
+                '<div class="xp-bar-wrap">' +
+                '<div class="xp-bar-bg"><div class="xp-bar-fill" style="width:' + xpProgress + '%"></div></div>' +
+                '<span class="xp-text">' + stats.xp + '/' + stats.nextLevelXP + ' XP</span>' +
+                '</div>';
+
+            footerStats.innerHTML =
+                '<span class="footer-stat"><b>' + stats.missionsCompleted + '</b> uppdrag</span>' +
+                '<span class="footer-stat"><b> ' + stats.totalEarnings.toLocaleString() + ' kr</b> tjänat</span>';
+        }
+
+        function startCooldown(seconds) {
+            if (cooldownInterval) clearInterval(cooldownInterval);
+            if (seconds <= 0) {
+                cooldownOverlay.classList.remove('active');
+                taskList.style.display = '';
+                return;
+            }
+
+            cooldownOverlay.classList.add('active');
+            taskList.style.display = 'none';
+            document.getElementById('cooldownTime').textContent = formatTime(seconds);
+
+            cooldownInterval = setInterval(function () {
+                seconds--;
+                if (seconds <= 0) {
+                    clearInterval(cooldownInterval);
+                    cooldownOverlay.classList.remove('active');
+                    taskList.style.display = '';
+                    document.getElementById('cooldownTime').textContent = '00:00';
+                } else {
+                    document.getElementById('cooldownTime').textContent = formatTime(seconds);
+                }
+            }, 1000);
+        }
+
+        function renderTasks(tasks) {
+            taskList.innerHTML = '';
+            for (var i = 0; i < tasks.length; i++) {
+                (function (task, idx) {
+                    var s = taskStyles[idx % taskStyles.length];
+
+                    var card = document.createElement('div');
+                    card.className = 'task-card';
+                    if (task.locked) card.classList.add('locked');
+
+                    var iconWrap = document.createElement('div');
+                    iconWrap.className = 'task-icon-wrap';
+                    iconWrap.style.background = s.bg;
+                    var icon = document.createElement('i');
+                    icon.className = task.icon || 'fas fa-box';
+                    icon.style.color = s.fg;
+                    iconWrap.appendChild(icon);
+
+                    var info = document.createElement('div');
+                    info.className = 'task-info';
+                    var name = document.createElement('div');
+                    name.className = 'task-name';
+                    name.textContent = task.name || 'Uppdrag';
+                    var desc = document.createElement('div');
+                    desc.className = 'task-desc';
+                    desc.textContent = task.description || '';
+                    info.appendChild(name);
+                    info.appendChild(desc);
+
+                    var right = document.createElement('div');
+                    right.className = 'task-right';
+
+                    if (task.difficulty) {
+                        var diffBadge = document.createElement('div');
+                        diffBadge.className = 'task-difficulty';
+                        var diffText = task.difficulty.toLowerCase();
+                        if (diffText === 'lätt' || diffText === 'latt') diffBadge.classList.add('easy');
+                        else if (diffText === 'medel') diffBadge.classList.add('medium');
+                        else if (diffText === 'svår' || diffText === 'svar') diffBadge.classList.add('hard');
+                        else if (diffText === 'expert') diffBadge.classList.add('expert');
+                        diffBadge.textContent = task.difficulty;
+                        right.appendChild(diffBadge);
+                    }
+
+                    var rewardVal = document.createElement('div');
+                    rewardVal.className = 'task-reward';
+                    rewardVal.textContent = (task.reward || 0) + ' kr';
+                    right.appendChild(rewardVal);
+
+                    // Lock overlay for locked categories
+                    var lockOverlay = document.createElement('div');
+                    lockOverlay.className = 'lock-overlay';
+                    lockOverlay.innerHTML = '<i class="fas fa-lock"></i> Kräver Nivå ' + (task.requiredLevel || 2);
+
+                    card.appendChild(iconWrap);
+                    card.appendChild(info);
+                    card.appendChild(right);
+                    card.appendChild(lockOverlay);
+
+                    if (!task.locked) {
+                        card.onclick = function () {
+                            app.classList.remove('active');
+                            if (cooldownInterval) clearInterval(cooldownInterval);
+                            postNUI('taskSelected', { taskId: task.id });
+                        };
+                    }
+
+                    taskList.appendChild(card);
+                })(tasks[i], i);
+            }
+        }
+
+        window.addEventListener('message', function (e) {
+            if (e.data.action === 'showTaskMenu') {
+                renderStats(e.data.stats || null);
+                renderTasks(e.data.tasks || []);
+
+                var cd = e.data.cooldown || 0;
+                if (cd > 0) {
+                    startCooldown(cd);
+                } else {
+                    cooldownOverlay.classList.remove('active');
+                    taskList.style.display = '';
+                }
+
+                app.classList.add('active');
+            }
+            if (e.data.action === 'hideTaskMenu') {
+                app.classList.remove('active');
+                if (cooldownInterval) clearInterval(cooldownInterval);
+            }
+        });
+
+        closeBtn.onclick = function () {
+            app.classList.remove('active');
+            if (cooldownInterval) clearInterval(cooldownInterval);
+            postNUI('closeMenu');
+        };
+        document.onkeyup = function (e) {
+            if (e.key === 'Escape') {
+                app.classList.remove('active');
+                if (cooldownInterval) clearInterval(cooldownInterval);
+                postNUI('closeMenu');
+            }
+        };
+    </script>
+</body>
+
+</html>

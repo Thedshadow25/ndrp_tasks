@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>NDRP Tasks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: transparent;
+            overflow: hidden;
+            color: #e4e4e7;
+        }
+
+        #app {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #app.active {
+            display: flex;
+        }
+
+        .panel {
+            width: 420px;
+            background: rgba(15, 15, 15, 0.95);
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px 12px;
+        }
+
+        .panel-header-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            color: #f4f4f5;
+        }
+
+        .panel-header-close {
+            background: none;
+            border: none;
+            color: #71717a;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .panel-header-close:hover {
+            color: #e4e4e7;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .accent-line {
+            height: 1px;
+            margin: 0 20px;
+            background: linear-gradient(90deg, #3B82F6, rgba(59, 130, 246, 0.1));
+        }
+
+        .task-list {
+            padding: 8px 12px;
+        }
+
+        .task-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: #1a1a1a;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .task-card:hover {
+            background: #222;
+            border-color: #333;
+        }
+
+        .task-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .task-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #f4f4f5;
+            margin-bottom: 2px;
+        }
+
+        .task-desc {
+            font-size: 11px;
+            color: #71717a;
+        }
+
+        .task-reward {
+            font-size: 13px;
+            font-weight: 700;
+            color: #22C55E;
+            flex-shrink: 0;
+        }
+
+        .panel-footer {
+            padding: 10px 20px 14px;
+            text-align: center;
+            border-top: 1px solid #1f1f1f;
+        }
+
+        .panel-footer span {
+            font-size: 11px;
+            color: #52525b;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-header-title">&#x1F69A; LEVERANSUPPDRAG</span>
+                <button class="panel-header-close" id="closeBtn">&times;</button>
+            </div>
+            <div class="accent-line"></div>
+            <div class="task-list" id="taskList"></div>
+            <div class="panel-footer">
+                <span>V&auml;lj ett uppdrag f&ouml;r att b&ouml;rja</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var app = document.getElementById('app');
+            var taskList = document.getElementById('taskList');
+            var closeBtn = document.getElementById('closeBtn');
+
+            var colors = [
+                { bg: 'rgba(59,130,246,0.15)', fg: '#3B82F6', letter: 'T' },
+                { bg: 'rgba(168,85,247,0.15)', fg: '#A855F7', letter: 'M' },
+                { bg: 'rgba(245,158,11,0.15)', fg: '#F59E0B', letter: 'D' },
+                { bg: 'rgba(34,197,94,0.15)', fg: '#22C55E', letter: 'P' },
+                { bg: 'rgba(239,68,68,0.15)', fg: '#EF4444', letter: 'X' },
+                { bg: 'rgba(6,182,212,0.15)', fg: '#06B6D4', letter: 'L' }
+            ];
+
+            function show() { app.classList.add('active'); }
+            function hide() { app.classList.remove('active'); }
+
+            function postNUI(endpoint, data) {
+                fetch('https://' + GetParentResourceName() + '/' + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data || {})
+                });
+            }
+
+            function renderTasks(tasks) {
+                taskList.innerHTML = '';
+                for (var i = 0; i < tasks.length; i++) {
+                    (function (task, idx) {
+                        var c = colors[idx % colors.length];
+
+                        var card = document.createElement('div');
+                        card.className = 'task-card';
+
+                        var iconDiv = document.createElement('div');
+                        iconDiv.className = 'task-icon';
+                        iconDiv.style.background = c.bg;
+                        iconDiv.style.color = c.fg;
+                        iconDiv.textContent = (task.name || 'U').charAt(0).toUpperCase();
+
+                        var infoDiv = document.createElement('div');
+                        infoDiv.className = 'task-info';
+
+                        var nameDiv = document.createElement('div');
+                        nameDiv.className = 'task-name';
+                        nameDiv.textContent = task.name || 'Uppdrag';
+
+                        var descDiv = document.createElement('div');
+                        descDiv.className = 'task-desc';
+                        descDiv.textContent = task.description || '';
+
+                        infoDiv.appendChild(nameDiv);
+                        infoDiv.appendChild(descDiv);
+
+                        var rewardDiv = document.createElement('div');
+                        rewardDiv.className = 'task-reward';
+                        rewardDiv.textContent = (task.reward || 0) + ' kr';
+
+                        card.appendChild(iconDiv);
+                        card.appendChild(infoDiv);
+                        card.appendChild(rewardDiv);
+
+                        card.onclick = function () {
+                            hide();
+                            postNUI('taskSelected', { taskId: task.id });
+                        };
+
+                        taskList.appendChild(card);
+                    })(tasks[i], i);
+                }
+            }
+
+            // NUI message handler
+            window.addEventListener('message', function (event) {
+                if (event.data.action === 'showTaskMenu') {
+                    renderTasks(event.data.tasks || []);
+                    show();
+                } else if (event.data.action === 'hideTaskMenu') {
+                    hide();
+                }
+            });
+
+            // Close button
+            closeBtn.onclick = function () {
+                hide();
+                postNUI('closeMenu');
+            };
+
+            // ESC key
+            document.onkeyup = function (e) {
+                if (e.key === 'Escape') {
+                    hide();
+                    postNUI('closeMenu');
+                }
+            };
+        })();
+    </script>
+</body>
+
+</html>
